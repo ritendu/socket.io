@@ -22,6 +22,10 @@ io.on('connection',(socket)=>{
   socket.on('disconnect',()=>{
     io.emit('message','A user has left the chat')
   })
+  socket.on('chatMessage',(msg)=>{
+// console.log(msg);
+io.emit('message',msg)
+  })
 })
 server.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`)
