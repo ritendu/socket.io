@@ -31,7 +31,9 @@ io.on('connection',(socket)=>{
     io.emit('message',formatMessage('ChatCord Bot','A user has left the chat'))
   })
   socket.on('chatMessage',(msg)=>{
-    io.emit('message',formatMessage('username',msg))
+    const user = getCurrentUser(socket.id);
+
+    io.to(user.room).emit('message',formatMessage(user.username,msg))
 
   })
 })
