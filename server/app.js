@@ -8,6 +8,9 @@ io.on('connection',(socket)=>{
         socket.join(data);
         console.log(`User with ID:${socket.id} joined room:${data}`)
     })
+    socket.on('send_message',(data)=>{
+        
+    })
 })
 server.listen(3001,()=>{
     console.log('App is running on port....')
