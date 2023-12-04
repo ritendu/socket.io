@@ -6,7 +6,8 @@ const Form = ()=>{
 
     const options = {
         // passing the client secret obtained from the server
-        clientSecret: 'pi_3OI6g5SENL3MHdts1WZ7jkbe_secret_92hsEK0waf9ak3QKwr4S0Hhve',
+        // clientSecret: 'pi_3OI6g5SENL3MHdts1WZ7jkbe_secret_92hsEK0waf9ak3QKwr4S0Hhve',
+        clientSecret:   "pi_3OJYqzSENL3MHdts1IJrHwxr_secret_oLRl25mmUtTlGXnolrbiKhJzN"
       };
       return (
     <>
