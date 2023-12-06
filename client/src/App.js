@@ -6,7 +6,7 @@ import Card from './Card';
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.
 import PaymentSuccessful from './About';
-import AddSubscription from './AddSubscription';
+
 import Confirm from './Confirm';
 function App() {
 return(
@@ -15,7 +15,6 @@ return(
    <Route path='/' element={<div><Form/></div>}/>
    <Route path="/add-card" element={<div><Card/></div>}/>
    <Route path='/successful' element={<div><PaymentSuccessful/></div>}/>
-   <Route path='/add-subscription' element={<div><AddSubscription/></div>}/>
    {/* <Route path='/confirm-subscription' element={<div><Confirm/></div>}/> */}
    {/* <Route path='*' element={<div><PageNotFound></PageNotFound></div>}/> */}
   </Routes>

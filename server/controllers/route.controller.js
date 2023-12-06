@@ -16,31 +16,38 @@ const createPaymentIntent = async(req,res)=>{
 }
 
 const createSubcription = async(req,res)=>{
-
+console.log(req.body,"Inside Subscription Backend")
   const product = await stripe.products.create({
     name: 'Gold Plan',
   });
+
+  const paymentMethod = await stripe.paymentMethods.create({
+    type: 'card',
+    card: 
+      {token: req.body.tokenId}
+    
+  });
+  console.log(paymentMethod,"paymentMethod")
   const customer = await stripe.customers.create({
     name: 'JELLY',
     email: 'jelly@gmail.com',
-    shipping:{
-      name:'Jelly Bean',
-    address:{
-      city:'Kolkata',
-      country:"India",
-      state:"West Bengal",
-
-    }
-    }
+    shipping: {
+      name: 'Customer Name', // Replace with the customer's name
+      address: {
+        line1: 'Address Line 1',
+        line2: 'Address Line 2',
+        city: 'City',
+        state: 'State',
+        postal_code: 'Postal Code',
+        country: 'IN', // Replace with the country code (e.g., 'IN' for India)
+      },
+    },
   });
 
+  console.log(customer,"customer")
 
-const paymentMethod = await stripe.paymentMethods.create({
-  type: 'card',
-  card: 
-    {token: "tok_1OJboHSENL3MHdtsqg1OZfzM"}
-  
-});
+
+
 
 
 const attachpaymentMethod = await stripe.paymentMethods.attach(
@@ -50,8 +57,15 @@ const attachpaymentMethod = await stripe.paymentMethods.attach(
   }
 );
 
+const updatedCustomer  = await stripe.customers.update(
+  customer.id,
+  {
+    invoice_settings: {
+      default_payment_method: paymentMethod.id,
+    },
+  });
   const price = await stripe.prices.create({
-    currency: 'usd',
+    currency: 'inr',
     unit_amount: 1000,
     recurring: {
       interval: 'month',
@@ -60,41 +74,25 @@ const attachpaymentMethod = await stripe.paymentMethods.attach(
   });
 
 
-  // const subscription = await stripe.subscriptions.create({
-  //   customer: customer.id,
-  //   items: [
-  //     {
-  //       price: price.id,
-  //     },
-  //   ],
-  //   default_payment_method:paymentMethod.id,
-  //   // billing_cycle_anchor:'year'
-
-  // });
-  const newBillingCycleAnchor = Math.floor(Date.now() / 1000) + 24 * 3600; 
   const subscription = await stripe.subscriptions.create({
-    customer: customer.id,
-    items: [{
-      price: price.id,
+    customer:updatedCustomer.id,
+    items:[{
+      price:price.id
     }],
-    payment_behavior: 'default_incomplete',
     default_payment_method:paymentMethod.id,
-    payment_settings: { save_default_payment_method: 'on_subscription' },
-    expand: ['latest_invoice.payment_intent'],
-    billing_cycle_anchor:newBillingCycleAnchor
-  });
-console.log(subscription,"subscription")
-//   console.log(subscription.latest_invoice.payment_intent,"subscription")
-//   const confirmation = await stripe.paymentIntents.confirm(subscription.latest_invoice.payment_intent.id);
-// console.log(confirmation,"confirmation")
+    payment_behavior: 'default_incomplete',
+      expand: ['latest_invoice.payment_intent']
+  })
+
+res.send({data:subscription.latest_invoice.payment_intent.client_secret})
+
 
 }
 
-const createInvoice = async(req,res)=>{
-  const invoice = await stripe.invoices.retrieve('in_1OJYqzSENL3MHdtsTOQyga28', {
-    expand: ["payment_intent"],
-  });
-  console.log(invoice,"invoice")
+
+
+const getRequest = async(req,res)=>{
+console.log("Hello")
 }
 
-module.exports = {createPaymentIntent,createSubcription,createInvoice}
+module.exports = {createPaymentIntent,createSubcription,getRequest}

@@ -5,6 +5,8 @@ import {useStripe, useElements, CardNumberElement,
   AddressElement,
   PaymentElement,
   CardElement,} from '@stripe/react-stripe-js';
+import axios from 'axios'
+
   import { useMemo } from 'react';
 const AddCard = ()=>{
     const stripe = useStripe();
@@ -70,13 +72,20 @@ const AddCard = ()=>{
       return;
     }
 console.log("Hello")
-const addressElement = elements.getElement('address');
+// const addressElement = elements.getElement('address');
 
-const {complete, value} = await addressElement.getValue();
-console.log(value,"value")
-const { token, error } = await stripe.createToken(elements.getElement(elements));
-console.log(token,"token")
-
+// const {complete, value} = await addressElement.getValue();
+// console.log(value,"value")
+const { token, error } = await stripe.createToken(elements.getElement(CardNumberElement));
+console.log(token.id,"token")
+try {
+  const createSubscription = await axios.post("http://localhost:3001/api/create-subscription",{tokenId:token.id,cardId:token.card.id})
+  // console.log(createSubscription,"createSubscription")
+  const completePayment = await stripe.confirmCardPayment(createSubscription.data.data);
+  console.log(completePayment,"completePayment")
+} catch (error) {
+  
+}
 
     if (error) {
         console.log(error,">>>>>>>")
@@ -91,37 +100,12 @@ console.log(token,"token")
 
     return (
         <form>
-     {/* <CardElement/> */}
-     <LinkAuthenticationElement
-            // Access the email value like so:
-            // onChange={(event) => {
-            //  setEmail(event.value.email);
-            // }}
-            //
-            // Prefill the email field like so:
-            // options={{defaultValues: {email: 'foo@bar.com'}}}
-          />
+   
+   <CardNumberElement/>
+   <CardExpiryElement/>
+   <CardCvcElement/>
 
-          <h3>Shipping address</h3>
-          <AddressElement
-            options={{mode: 'billing'}}
-
-            // Access the address like so:
-            // onChange={(event) => {
-            //   setAddressState(event.value);
-            // }}
-          />
-          <h3>Payment Details</h3>
-          <PaymentElement/>
-     {/* <div>
-     <CardNumberElement options={cardoptions}/>
-     </div>
-     <div>
-     <CardCvcElement options={createOptions}/>
-     </div>
-     <div>
-     <CardExpiryElement options={createOptions}/>
-     </div> */}
+     
         <button onClick={handleSubmit}>Submit</button>
       </form>
     )
