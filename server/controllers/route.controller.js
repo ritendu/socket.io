@@ -16,7 +16,7 @@ const createPaymentIntent = async(req,res)=>{
 }
 
 const createSubcription = async(req,res)=>{
-console.log(req.body,"Inside Subscription Backend")
+
   const product = await stripe.products.create({
     name: 'Gold Plan',
   });
@@ -27,7 +27,7 @@ console.log(req.body,"Inside Subscription Backend")
       {token: req.body.tokenId}
     
   });
-  console.log(paymentMethod,"paymentMethod")
+
   const customer = await stripe.customers.create({
     name: 'JELLY',
     email: 'jelly@gmail.com',
@@ -43,11 +43,6 @@ console.log(req.body,"Inside Subscription Backend")
       },
     },
   });
-
-  console.log(customer,"customer")
-
-
-
 
 
 const attachpaymentMethod = await stripe.paymentMethods.attach(
@@ -73,6 +68,12 @@ const updatedCustomer  = await stripe.customers.update(
     product:product.id
   });
 
+  const desiredBillingCycleStart = new Date('2023-09-01T00:00:00'); // Replace with your desired start date
+  const billingCycleAnchor = Math.floor(desiredBillingCycleStart.getTime() / 1000);
+  
+  // Calculate the Unix timestamp for the desired end date (e.g., 3 months later)
+  const desiredEnd = new Date('2023-12-01T00:00:00'); // Replace with your desired end date
+  const desiredEndTimestamp = Math.floor(desiredEnd.getTime() / 1000);
 
   const subscription = await stripe.subscriptions.create({
     customer:updatedCustomer.id,
@@ -81,9 +82,11 @@ const updatedCustomer  = await stripe.customers.update(
     }],
     default_payment_method:paymentMethod.id,
     payment_behavior: 'default_incomplete',
-      expand: ['latest_invoice.payment_intent']
+      expand: ['latest_invoice.payment_intent'],
+      billing_cycle_anchor: billingCycleAnchor,
+      cancel_at:desiredEndTimestamp
   })
-
+console.log(subscription,"subscription")
 res.send({data:subscription.latest_invoice.payment_intent.client_secret})
 
 
